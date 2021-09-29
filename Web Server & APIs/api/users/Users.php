@@ -2,98 +2,16 @@
 
   namespace Api\Users;
 
-  class Users {
-
-    private $token_model = NULL;
+  class Users extends \Api\Api{
     private $user_model = NULL;
-    private $token_data_keys = array('token_data', 'expiry_date', 'user_id');
+    private $token_model = NULL;
     private $register_user_data_keys = array('name', 'email', 'password', 'username', 'user_role');
     private $login_user_data_keys = array('email', 'password');
 
-    public function __construct($token_model, $user_model)
+    public function __construct($conn)
     {
-      $this->token_model = $token_model;
-      $this->user_model = $user_model;
-    }
-
-    public function index($value='')
-    {
-      echo 'users api';
-    }
-
-    // Token GENERATION
-    private static function generate_token($user_id)
-    {
-      $current_timestamp = time();
-      $expiry_timestamp = strtotime('+2 days', $current_timestamp);
-      $expiry_timestamp = date("Y-m-d H:i:s", $expiry_timestamp);
-
-      $token = hash('md5', $user_id . $current_timestamp . $expiry_timestamp);
-
-      $token_data = array(
-        'token_data' => $token,
-        'expiry_date' => $expiry_timestamp,
-        'user_id' => $user_id
-      );
-
-      return $token_data;
-    }
-
-    // ADDING TOKEN TO THE DB
-    private function add_token($token_data)
-    {
-      if (!($this->check_token_data($token_data) && $this->token_model)) {
-        return;
-      }
-
-      $this->token_model->add_token($token_data);
-    }
-
-    // CHECKING IF TOKEN DATA ARRAY IS IN THE SUITABLE FORMAT
-    private function check_token_data($token_data)
-    {
-      if (is_array($token_data)) {
-        if (count(array_intersect($token_data, $this->token_data_keys)) == count($token_data)) {
-          return TRUE;
-        }
-      }
-
-      return FALSE;
-    }
-
-    // VERIFYING A TOKEN
-    private function verify_token($token_value, $user_id) {
-      if (!$this->token_model) {
-        return;
-      }
-
-      $verification_data = array(
-        'token_data' => $token_value,
-        'user_id' => $user_id
-      );
-      $res = $this->token_model->verify_token($verification_data);
-
-      if ($res) {
-        return TRUE;
-      }
-
-      return FALSE;
-    }
-
-    // IS TOKEN EXPIRED!
-    private function token_expired($token_value, $user_id) {
-      $verification_data = array(
-        'token_data' => $token_value,
-        'user_id' => $user_id
-      );
-
-      $res = $this->token_model->get_token($verification_data);
-      $expiry_date_stamp = strtotime($res->expiry_date);
-      if (time() > $expiry_date_stamp) {
-        return TRUE;
-      }
-
-      return FALSE;
+      $this->token_model = new \App\Models\Tokens($conn);
+      $this->user_model = new \App\Models\Users($conn);
     }
 
     // REGISTERATION :::::
@@ -119,7 +37,7 @@
       if (!in_array('username', array_keys($user_data))) {
         $user_data['username'] = NULL;
       }
-      if ($this->register_data_valid($user_data)) {
+      if (!$this->register_data_valid($user_data)) {
         echo 'user data is not valid!';
         return;
       }
@@ -142,7 +60,7 @@
     private function register_data_valid($user_data)
     {
       if (is_array($user_data)) {
-        if (count(array_intersect(array_keys($user_data), $this->register_user_data_keys)) == count($user_data)) {
+        if (count(array_keys($user_data)) >= 4) {
           return TRUE;
         }
       }
@@ -156,19 +74,31 @@
     // LOGIN USER
     public function login_user()
     {
+      $data = array(
+        'logged_in' => FALSE
+      );
+
       $user_data = $this->get_posted_data();
 
       if (!$this->login_data_valid($user_data)) {
-        echo 'user data is not valid!';
+        $data['message'] = 'user data is not valid!';
         return;
       }
 
       $res = $this->user_model->check_user_credentials($user_data);
       if ($res) {
-        echo 'user logged in!';
+        $data['logged_in'] = TRUE;
+        $db_user_data = $this->user_model->get_user_data($user_data['email']);
+        $data['user_data'] = $db_user_data;
+        // get the user token_data
+        $this->generate_user_token($db_user_data->user_id);
+        $user_token_data = $this->get_user_token($db_user_data->user_id);
+        $data['user_token'] = $user_token_data;
       } else {
-        echo 'invalid credentials!';
+        $data['message'] = 'invalid credentials!';
       }
+
+      $this->return_json($data);
     }
 
     // CHECK LOGIN USER_DATA VALIDITY
@@ -181,6 +111,38 @@
       }
 
       return FALSE;
+    }
+
+    // TOKENIZATION ::
+
+    // GET USER TOKEN VALUE
+    public function get_user_token($user_id)
+    {
+      $res = $this->token_model->get_by('user_id', $user_id);
+      if (count($res) == 0) {
+        $res = null;
+      }
+
+      return $res;
+    }
+
+    // GENERATE USER TOKEN AND ADD IT TO THE DB
+    private function generate_user_token($user_id)
+    {
+      $res = $this->get_user_token($user_id);
+      if ($res != null) {
+        return;
+      }
+
+      $token_value = $this->generate_token();
+      $current_timestamp = time();
+      $expiry_date = date('Y-m-d H:i:s', strtotime('+1 day', time()));
+      $token_data = array(
+        'token_data' => $token_value,
+        'expiry_date' => $expiry_date,
+        'user_id' => $user_id
+      );
+      $this->token_model->add_token($token_data);
     }
 
   }

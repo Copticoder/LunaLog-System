@@ -8,6 +8,7 @@
     {
       $this->conn = $conn;
       $this->table = 'users';
+      $this->table_keys = array('id', 'name', 'username', 'email', 'password', 'created_at', 'user_role');
       if (!$this->table_exists()){
         exit("table " . $this->table . " doesn't exist!");
       }
@@ -39,6 +40,26 @@
       $stmt->execute();
 
       return $stmt;
+    }
+
+    // GET USER DATA
+    public function get_user_data($email)
+    {
+      $query = "SELECT * FROM `$this->table` WHERE email='". $email . "'";
+      $res = $this->conn->query($query);
+
+      foreach ($res as $row) {
+        $user_data = new \stdClass;
+        $user_data->user_id = $row[0];
+        $user_data->name = $row[1];
+        $user_data->username = $row[2];
+        $user_data->email = $row[3];
+        $user_data->created_at = $row[5];
+        $user_data->user_role = $row[6];
+      }
+
+      return $user_data;
+
     }
 
     // CHECK SOME USER'S CREDENTIALS
