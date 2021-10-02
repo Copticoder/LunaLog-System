@@ -38,16 +38,25 @@
         $user_data['username'] = NULL;
       }
       if (!$this->register_data_valid($user_data)) {
-        echo 'user data is not valid!';
-        return;
+        $data = array(
+          'registered' => FALSE,
+          'message' => 'user data is not valid!'
+        );
+        $this->return_json($data);
       }
       if ($this->user_exists($user_data)) {
-        echo 'user already exists!';
-        return;
+        $data = array(
+          'registered' => FALSE,
+          'message' => 'user already exists!'
+        );
+        $this->return_json($data);
       }
 
       $this->user_model->add_user($user_data);
-      echo 'user registered!';
+      $data = array(
+        'registered' => TRUE
+      );
+      $this->return_json($data);
     }
 
     // CHECK USER EXISTENCE
@@ -143,6 +152,15 @@
         'user_id' => $user_id
       );
       $this->token_model->add_token($token_data);
+    }
+
+
+    // GET ALL USERS DATA
+    public function get_all_users_logs()
+    {
+      $users_data = $this->user_model->get_all_users_logs();
+
+      $this->return_json($users_data);
     }
 
   }

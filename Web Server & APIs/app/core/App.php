@@ -4,6 +4,17 @@
 
   class App {
 
+    public static function view($page_name)
+    {
+      global $VIEWS_;
+      if (file_exists($VIEWS_ . $page_name . '.php')) {
+        include $VIEWS_ . $page_name . '.php';
+      } else {
+        header("HTTP/1.0 404 Not Found");
+        include $VIEWS_ . '404.php';
+      }
+    }
+
     public static function get($pattern, $callback)
     {
       return self::map(['GET'], $pattern, $callback);

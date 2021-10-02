@@ -1,37 +1,41 @@
 <?php
 
-  namespace Api\Logs;
+  namespace Api\Logs_imgs;
 
-  class Logs extends \Api\Api {
+  class Imgs extends \Api\Api {
 
     private $user_model = NULL;
     private $token_model = NULL;
-    private $logs_model = NULL;
+    private $imgs_log_model = NULL;
 
     public function __construct($conn)
     {
       $this->token_model = new \App\Models\Tokens($conn);
       $this->user_model = new \App\Models\Users($conn);
-      $this->logs_model = new \App\Models\Logs($conn);
+      $this->imgs_log_model = new \App\Models\ImageLogs($conn);
     }
 
-    // GET REGISTER LOGs POSTED DATA
-    private function get_posted_data() {
-      $post_log_data_keys = array('user_id', 'log_data', 'meta_data', 'tags', 'token');
-      $log_data = array();
-      foreach ($post_log_data_keys as $key) {
+
+    // IMG REGISTERATION  :::
+
+    // GET REGISTER IMAGE LOG POSTED DATA
+    private function get_img_register_posted_data() {
+      $post_img_log_data_keys = array('user_id', 'img_data', 'token', 'tags', 'meta_data');
+      $img_log_data = array();
+      foreach ($post_img_log_data_keys as $key) {
         if (isset($_POST[$key])) {
-          $log_data[$key] = $_POST[$key];
+          $img_log_data[$key] = $_POST[$key];
         } else {
           return null;
         }
       }
-      return $log_data;
+      return $img_log_data;
     }
 
-    // REGISTER LOGs
-    public function register_log() {
-      $res = $this->get_posted_data();
+    // REGISTER IMGs
+    public function register_img_log()
+    {
+      $res = $this->get_img_register_posted_data();
       if (!$res) {
         $data = array(
           'message' => 'invalid data!'
@@ -45,16 +49,36 @@
         return $this->return_json($data);
       }
       unset($res['token']);
-      $this->logs_model->add_log($res);
+      $decoded_img_link = $this->decode_save_img($res['img_data'], $res['user_id']);
+      unset($res['img_data']);
+      $res['img_link'] = $decoded_img_link;
+      $this->imgs_log_model->add_img_log($res);
       $data = array(
         'registered' => TRUE
       );
       return $this->return_json($data);
     }
 
-    // GET REMOVE LOGs POSTED DATA
+    // DECODE IMG DATA
+    private function decode_save_img($img_data, $user_id) {
+      global $USERS_DATA_IMGS_;
+      $decoded_img = base64_decode($img_data);
+      $img_name = time() . "_" . $user_id;
+      $img_path = $img_name. '.jpg';
+      file_put_contents(
+        $USERS_DATA_IMGS_ . $img_path,
+        $decoded_img
+      );
+
+      return $img_name;
+    }
+
+
+    // IMG REMOVAL :::
+
+    // GET REMOVE IMG LOGs POSTED DATA
     private function get_remove_log_posted_data() {
-      $post_remove_data_keys = array('log_id', 'user_id', 'token');
+      $post_remove_data_keys = array('img_id', 'user_id', 'token');
       $log_remove_data = array();
       foreach ($post_remove_data_keys as $key) {
         if (isset($_POST[$key])) {
@@ -81,7 +105,7 @@
         );
         return $this->return_json($data);
       }
-      $log_ = $this->logs_model->get_by('log_id', $res['log_id']);
+      $log_ = $this->imgs_log_model->get_by('img_id', $res['img_id']);
       if (count($log_) == 0){
         $data = array(
           'message' => 'unauthoraized user!'
@@ -94,12 +118,15 @@
         );
         return $this->return_json($data);
       }
-      $this->logs_model->remove_log($res['log_id']);
+      $this->imgs_log_model->remove_img_log($res['img_id']);
       $data = array(
         'log_removed' => TRUE
       );
       return $this->return_json($data);
     }
+
+
+    // GET USER IMG LOGs :::
 
     // GET USER LOGs POSTED DATA
     private function get_user_logs_posted_data() {
@@ -129,8 +156,9 @@
         );
         return $this->return_json($data);
       }
-      $user_logs = $this->logs_model->get_by('user_id', $res['user_id']);
+      $user_logs = $this->imgs_log_model->get_by('user_id', $res['user_id']);
       return $this->return_json($user_logs);
     }
+
 
   }

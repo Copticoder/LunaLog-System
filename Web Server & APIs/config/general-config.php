@@ -10,17 +10,31 @@
 
   // DIRECTORIES CONFIGs
   define('DS', DIRECTORY_SEPARATOR);
-  define('ROOT', '..' . DS);
+  define('ROOT', dirname(__DIR__) . DS);
 
     // ROOT DIRs
   $API_ = ROOT . 'apis' . DS;
   $APP_ = ROOT . 'app' . DS;
   $CONFIG_ = ROOT . 'config' . DS;
+  $PUBLIC_ = ROOT . 'public' . DS;
+
     // APP SUB-DIRs
-  $CONTROLLERS_ = $APP_ . 'controllers';
-  $CORE_ = $APP_ . 'core';
-  $MODELS_ = $APP_ . 'models';
-  $VIEWS_ = $APP_ . 'views';
+  $CONTROLLERS_ = $APP_ . 'controllers' . DS;
+  $CORE_ = $APP_ . 'core' . DS;
+  $MODELS_ = $APP_ . 'models' . DS;
+  $VIEWS_ = $APP_ . 'views' . DS;
+  $ROUTES_ = $APP_ . 'routes' . DS;
+
+    // PUBLIC SUB-DIRs
+  $CSS_ = $PUBLIC_ . 'css' . DS;
+  $FONTS_ = $PUBLIC_ . 'fonts' . DS;
+  $JS_ = $PUBLIC_ . 'js' . DS;
+  $IMGS_ = $PUBLIC_ . 'imgs' . DS;
+
+  $USERS_DATA_ = ROOT . 'users_data' . DS;
+    // USERS DATA SUB-DIRs
+  $USERS_DATA_AUDIOS_ = $USERS_DATA_ . 'audios' . DS;
+  $USERS_DATA_IMGS_ = $USERS_DATA_ . 'imgs' . DS;
 
 
   // CLASSES AUTOLOADER
@@ -38,3 +52,20 @@
     }
 
   });
+
+
+  // DB CONNECTION
+  $db = new \Config\Database();
+  $conn = $db->connect();
+
+  // APIS ROUTES
+  require $ROUTES_ . 'apis.php';
+
+  // WEB ROUTES
+  require $ROUTES_ . 'web.php';
+
+  // PREVIEW ROUTES
+  require $ROUTES_ . 'preview.php';
+
+  // PREVIEW ROUTES
+  require $ROUTES_ . 'session.php';

@@ -94,4 +94,46 @@
       return FALSE;
     }
 
+    // GET ALL USERS LOGs
+    public function get_all_users_logs()
+    {
+      $query = "SELECT users.id, users.name, logs.log_id, logs.log_data, logs.posted_at, logs.meta_data, logs.tags FROM users INNER JOIN logs ON users.id = logs.user_id";
+      $stmt = $this->conn->prepare($query);
+      $stmt->execute();
+      $res1 = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+      $query = "SELECT users.id, users.name, imgs.img_id, imgs.img_link, imgs.posted_at, imgs.meta_data, imgs.tags FROM users INNER JOIN imgs ON users.id = imgs.user_id";
+      $stmt = $this->conn->prepare($query);
+      $stmt->execute();
+      $res2 = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+      $query = "SELECT users.id, users.name, audios.audio_id, audios.audio_link, audios.posted_at, audios.meta_data, audios.tags FROM users INNER JOIN audios ON users.id = audios.user_id";
+      $stmt = $this->conn->prepare($query);
+      $stmt->execute();
+      $res3 = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+      $combined_results = array(
+        'text_logs' => $res1,
+        'img_logs' => $res2,
+        'audio_logs' => $res3
+      );
+      $final_res = array();
+      foreach ($combined_results as $key => $value) {
+        for ($i=0; $i < count($value); $i++) {
+          if (!in_array($value[$i]['id'], array_keys($final_res))) {
+            $final_res[$value[$i]['id']] = array();
+          }
+          if (!in_array('user_name', array_keys($final_res[$value[$i]['id']]))) {
+            $final_res[$value[$i]['id']]['user_name'] = $value[$i]['name'];
+          }
+          if (!in_array($key, array_keys($final_res[$value[$i]['id']]))) {
+            $final_res[$value[$i]['id']][$key] = array();
+          }
+          $log_arr = $value[$i];
+          unset($log_arr['id']);
+          unset($log_arr['name']);
+          array_push($final_res[$value[$i]['id']][$key], $log_arr);
+        }
+      }
+
+      return $final_res;
+    }
+
   }
