@@ -1,0 +1,90 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto');
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background: url('/imgs/login-background.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.header {
+  background: #374350;
+  height: 100px;
+  opacity: 0.95;
+  color: #fff;
+  display: flex;
+  justify-content:space-around;
+}
+
+.header img {
+  height: 120px;
+  width: 120px;
+  margin-top: -10px;
+}
+
+.welcome-msg p {
+  position: relative;
+  top: 40%;
+  font-size: 20px;
+}
+
+.welcome-msg a {
+  position: relative;
+  top: 40%;
+  font-size: 20px;
+  color: #fff;
+}
+
+.welcome-msg a:hover {
+  color: #A9A9A9;
+}
+
+/* Tabs */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 25px;
+  opacity: 0.9;
+}
+
+.tabs input[type="radio"] {
+    display: none;
+}
+
+.tabs label {
+    padding: 25px;
+    background: #e2e2e2;
+    font-weight: bold;
+}
+
+.tabs .tab {
+    width: 100%;
+    padding: 20px;
+    background: #fff;
+    order: 1;
+    display: none;
+}
+
+.tabs .tab h2 {
+    font-size: 3em;
+}
+
+.tabs input[type='radio']:checked + label + .tab {
+    display: block;
+}
+
+.tabs input[type="radio"]:checked + label {
+    background: #fff;
+}
+
+.img_log {
+  width: 100px;
+}
