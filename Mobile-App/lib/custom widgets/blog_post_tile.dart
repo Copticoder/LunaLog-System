@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 
 class BlogPostTile extends StatelessWidget {
-  final String title;
-  final String image;
   final String author;
-  final String date;
+  final String image;
   final Function onClick;
   BlogPostTile(
-      {required this.title,
-      required this.image,
-      required this.author,
-      required this.date,
-      required this.onClick});
+      {required this.author, required this.image, required this.onClick});
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -21,16 +15,8 @@ class BlogPostTile extends StatelessWidget {
       child: Container(
         child: Row(
           children: [
-            Container(
-              width: 120,
-              height: 75,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  image,
-                  fit: BoxFit.cover,
-                ),
-              ),
+            CircleAvatar(
+              backgroundImage: AssetImage(image),
             ),
             const SizedBox(
               width: 20,
@@ -41,7 +27,7 @@ class BlogPostTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    author,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
@@ -49,12 +35,6 @@ class BlogPostTile extends StatelessWidget {
                   ),
                   const SizedBox(
                     height: 10,
-                  ),
-                  Text(
-                    '$author, $date',
-                    style: TextStyle(
-                      fontSize: 10,
-                    ),
                   ),
                 ],
               ),
