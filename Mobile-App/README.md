@@ -4,6 +4,5 @@ A Mobile Application Made For The Global Nasa Space Apps Challenge. Specifically
 
 ## Application Overview
 
-This project is a starting point for a Flutter application.
-##Nasa Resources and full project
+## Nasa Resources and full project
 https://2021.spaceappschallenge.org/challenges/statements/lunar-surface-operations-real-time-collaboration/teams/space-loggers/project
