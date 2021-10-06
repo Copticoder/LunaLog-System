@@ -6,7 +6,7 @@ A Mobile Application Made For The Global Nasa Space Apps Challenge. Specifically
 
 
 
-                             https://user-images.githubusercontent.com/90578831/136237649-097da29d-23e0-4d4a-bf8e-18fa7342dabe.mp4
+  https://user-images.githubusercontent.com/90578831/136237649-097da29d-23e0-4d4a-bf8e-18fa7342dabe.mp4
 
 
 
