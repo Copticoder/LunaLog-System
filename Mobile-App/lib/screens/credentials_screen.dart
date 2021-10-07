@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'blog_screen.dart';
+import 'package:nasa_blog/model/data.dart';
+import 'package:nasa_blog/screens/logs_screens/log_screen.dart';
 
+// ignore: must_be_immutable
 class CredentialsPage extends StatelessWidget {
-  changeForm() {}
-  String username = '';
-  String password = '';
+  TextEditingController email = TextEditingController();
+  TextEditingController password = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,7 +16,7 @@ class CredentialsPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Nasa Blog 🚀',
+                'LunaLogs 🚀',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 50,
@@ -24,9 +26,7 @@ class CredentialsPage extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: TextField(
-                  onChanged: (String text) {
-                    username = text;
-                  },
+                  controller: email,
                   decoration: InputDecoration(
                     hintText: 'username',
                     filled: true,
@@ -43,9 +43,10 @@ class CredentialsPage extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: TextField(
-                  onChanged: (String text) {
-                    password = text;
-                  },
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  obscureText: true,
+                  controller: password,
                   decoration: InputDecoration(
                     hintText: 'password',
                     filled: true,
@@ -58,24 +59,39 @@ class CredentialsPage extends StatelessWidget {
                   ),
                 ),
               ),
-              Column(
-                children: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/second');
-                      },
-                      child: Text(
-                        'Login',
-                        style: TextStyle(fontSize: 20),
-                      )),
-                  TextButton(
-                      onPressed: changeForm,
-                      child: Text(
-                        'Sign Up ',
-                        style: TextStyle(fontSize: 20),
-                      ))
-                ],
-              ),
+              TextButton(
+                  onPressed: () async {
+                    final user = User();
+                    var userData = await user.login(
+                        email.text.trimRight(), password.text.trimRight());
+                    if (userData['message'] == 'invalid credentials!') {
+                      return showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text("Error"),
+                              content: Text(userData['message']),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Ok'))
+                              ],
+                            );
+                          });
+                    } else {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LogsScreen(
+                                  userData['user_data']['user_id'])));
+                    }
+                  },
+                  child: Text(
+                    'LOGIN',
+                    style: TextStyle(fontSize: 20),
+                  )),
             ],
           ),
         ),
